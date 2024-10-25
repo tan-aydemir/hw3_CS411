@@ -27,6 +27,18 @@ class Meal:
 
 
 def create_meal(meal: str, cuisine: str, price: float, difficulty: str) -> None:
+    """Creates a meal.
+
+    Args:
+        meal (str): The first parameter.
+        cuisine (str): The second parameter.
+        price (float): The third parameter.
+        difficulty (str): The fourth parameter.
+
+    Returns:
+        None
+
+    """
     if not isinstance(price, (int, float)) or price <= 0:
         raise ValueError(f"Invalid price: {price}. Price must be a positive number.")
     if difficulty not in ['LOW', 'MED', 'HIGH']:
