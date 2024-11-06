@@ -29,3 +29,34 @@ def db_conn():
 ##################################################
 # Create meal test cases
 ##################################################
+
+def test_create_meal(db_conn):
+    """Test for creating a new meal."""
+    create_meal("Tacos", "Mexican", 10.0, "MED")
+    cursor = db_conn.cursor()
+    cursor.execute("SELECT * FROM meals WHERE meal = ?", ("Tacos",))
+    meal = cursor.fetchone()
+    assert meal is not None
+    assert meal[1] == "Tacos"
+    assert meal[2] == "Mexican"
+    assert meal[3] == 10.0
+    assert meal[4] == "MED"
+
+def test_create_meal_duplicate(db_conn):
+    """Test where creating a duplicate meal raises an error."""
+    create_meal("Tacos", "Mexican", 10.0, "MED")
+    with pytest.raises(ValueError, match="Meal with name 'Tacos' already exists"):
+        create_meal("Tacos", "Mexican", 10.0, "MED")
+
+
+def test_create_meal_invalid_price(db_conn):
+    """Test where creating a meal with an invalid price raises an error."""
+    with pytest.raises(ValueError, match="Invalid price"):
+        create_meal("Tacos", "Mexican", -10.0, "MED")
+
+def test_create_meal_invalid_difficulty(db_conn):
+    """Test where creating a meal with an invalid difficulty level raises an error."""
+    with pytest.raises(ValueError, match="Invalid difficulty level"):
+        create_meal("Tacos", "Mexican", 10.0, "EXPERT")
+
+
