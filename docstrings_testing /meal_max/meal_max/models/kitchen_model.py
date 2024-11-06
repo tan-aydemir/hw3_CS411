@@ -31,13 +31,20 @@ class Meal:
 
 def create_meal(meal: str, cuisine: str, price: float, difficulty: str) -> None:
     """
-    Creates a meal.
+    Creates and adds a new meal to the database.
 
     Args:
         meal (str): The name of the meal to be created.
         cuisine (str): The cuisine type of the meal to be created.
-        price (float): The price of the meal to be created.
-        difficulty (str): The difficulty of the meal to be created.
+        price (float): The price of the meal to be created, must be positive.
+        difficulty (str): The difficulty of the meal to be created, should be 'LOW'
+            'MED', or 'HIGH'.
+
+    Raises:
+        ValueError: If the `price` is not positive, or if `difficulty` is 
+            not one of 'LOW', 'MED', 'HIGH', or if a meal with the same 
+            name already exists.
+        sqlite3.Error: If a database error occurs.
 
     Returns:
         None
@@ -70,10 +77,15 @@ def create_meal(meal: str, cuisine: str, price: float, difficulty: str) -> None:
 
 def delete_meal(meal_id: int) -> None:
     """
-    Deletes a meal.
+    Marks a meal as deleted in the database.
 
     Args:
         meal_id (int): The id number for the meal to be deleted.
+
+    Raises:
+        ValueError: If the meal with the given id is already deleted or 
+            not found in the database.
+        sqlite3.Error: If a database error occurs.
 
     Returns:
         None
@@ -103,14 +115,18 @@ def delete_meal(meal_id: int) -> None:
 
 def get_leaderboard(sort_by: str="wins") -> dict[str, Any]:
     """
-    Function that returns the leaderboard.
+    Gets the meal leaderboard sorted by either wins or wins percentage.
 
     Args:
         sort_by (str): Determines the sorting criteria for the leaderboard, defaulting to "wins".
 
+    Raises:
+        ValueError: If `sort_by` is not 'wins' or 'win_pct'.
+        sqlite3.Error: If a database error occurs.
+
     Returns:
-        leaderboard (dict): A dictionary where each key is a string category, and each value 
-        is a row correlating to that category.
+        dict: A dictionary where each key is a string category, and each value 
+            is a row correlating to that category.
 
     """
     query = """
@@ -155,10 +171,14 @@ def get_leaderboard(sort_by: str="wins") -> dict[str, Any]:
 
 def get_meal_by_id(meal_id: int) -> Meal:
     """
-    Function to return a meal based on its id.
+    Gets a meal based on its id.
 
     Args:
-        meal_id (int): the id number for a given meal
+        meal_id (int): The id number for a given meal.
+
+    Raises:
+        ValueError: If the meal with the given id is deleted or not found.
+        sqlite3.Error: If a database error occurs.
 
     Returns:
         Meal: The meal object with the specified id.
@@ -186,13 +206,17 @@ def get_meal_by_id(meal_id: int) -> Meal:
 
 def get_meal_by_name(meal_name: str) -> Meal:
     """
-    Function to return a meal based on its id.
+    Gets a meal based on its name.
 
     Args:
-        meal_id (int): the id number for a given meal.
+        meal_name (str): The name of the meal to get.
+
+    Raises:
+        ValueError: If the meal with the given name is deleted or not found.
+        sqlite3.Error: If a database error occurs.
 
     Returns:
-        The meal object with the specified id.
+        Meal: The meal object with the specified name.
 
     """
     try:
@@ -217,11 +241,16 @@ def get_meal_by_name(meal_name: str) -> Meal:
 
 def update_meal_stats(meal_id: int, result: str) -> None:
     """
-    Updates the meal stats based on a given meal_id and result.
+    Updates the battle stats for a meal based on the result.
 
     Args:
-        meal_id (int): The id number for the given meal.
-        result (str): The wanted result for the indicated meal.
+        meal_id (int): The id number for the meal to update.
+        result (str): The result of the battle, either 'win' or 'loss'.
+
+    Raises:
+        ValueError: If the meal is deleted or not found, or if `result` 
+            is not 'win' or 'loss'.
+        sqlite3.Error: If a database error occurs.
 
     Returns:
         None
