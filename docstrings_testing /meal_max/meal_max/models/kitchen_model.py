@@ -30,13 +30,14 @@ class Meal:
 
 
 def create_meal(meal: str, cuisine: str, price: float, difficulty: str) -> None:
-    """Creates a meal.
+    """
+    Creates a meal.
 
     Args:
-        meal (str): The first parameter.
-        cuisine (str): The second parameter.
-        price (float): The third parameter.
-        difficulty (str): The fourth parameter.
+        meal (str): The name of the meal to be created.
+        cuisine (str): The cuisine type of the meal to be created.
+        price (float): The price of the meal to be created.
+        difficulty (str): The difficulty of the meal to be created.
 
     Returns:
         None
@@ -68,10 +69,11 @@ def create_meal(meal: str, cuisine: str, price: float, difficulty: str) -> None:
 
 
 def delete_meal(meal_id: int) -> None:
-    """Deletes a meal.
+    """
+    Deletes a meal.
 
     Args:
-        meal_id (int): the id number for a given meal
+        meal_id (int): The id number for the meal to be deleted.
 
     Returns:
         None
@@ -100,14 +102,15 @@ def delete_meal(meal_id: int) -> None:
         raise e
 
 def get_leaderboard(sort_by: str="wins") -> dict[str, Any]:
-    """Function that returns the leaderboard.
+    """
+    Function that returns the leaderboard.
 
     Args:
-        sort_by (str): filter to indicate how to sort the leaderboard.
+        sort_by (str): Determines the sorting criteria for the leaderboard, defaulting to "wins".
 
     Returns:
-        A dictionary with the keys being a string indicating the category,
-        and the values being the correlating rows.
+        leaderboard (dict): A dictionary where each key is a string category, and each value 
+        is a row correlating to that category.
 
     """
     query = """
@@ -151,13 +154,14 @@ def get_leaderboard(sort_by: str="wins") -> dict[str, Any]:
         raise e
 
 def get_meal_by_id(meal_id: int) -> Meal:
-    """Function to return a meal based on its id.
+    """
+    Function to return a meal based on its id.
 
     Args:
         meal_id (int): the id number for a given meal
 
     Returns:
-        The meal requested of type Meal
+        Meal: The meal object with the specified id.
 
     """
     try:
@@ -181,13 +185,14 @@ def get_meal_by_id(meal_id: int) -> Meal:
 
 
 def get_meal_by_name(meal_name: str) -> Meal:
-    """Function to return a meal based on its id.
+    """
+    Function to return a meal based on its id.
 
     Args:
-        meal_id (int): the id number for a given meal
+        meal_id (int): the id number for a given meal.
 
     Returns:
-        The meal requested of type Meal
+        The meal object with the specified id.
 
     """
     try:
@@ -211,11 +216,12 @@ def get_meal_by_name(meal_name: str) -> Meal:
 
 
 def update_meal_stats(meal_id: int, result: str) -> None:
-    """Updates the meal stats based on a given meal_id and result.
+    """
+    Updates the meal stats based on a given meal_id and result.
 
     Args:
-        meal_id (int): the id number for a given meal
-        result (str): the wanted result for the indicated meal
+        meal_id (int): The id number for the given meal.
+        result (str): The wanted result for the indicated meal.
 
     Returns:
         None
