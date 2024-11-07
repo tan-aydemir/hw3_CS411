@@ -145,7 +145,7 @@ def delete_meal(meal_id: int) -> Response:
         app.logger.info(f"Deleting meal by ID: {meal_id}")
 
         kitchen_model.delete_meal(meal_id)
-        return make_response(jsonify({'status': 'meal deleted'}), 200)
+        return make_response(jsonify({'status': 'success'}), 200)
     except Exception as e:
         app.logger.error(f"Error deleting meal: {e}")
         return make_response(jsonify({'error': str(e)}), 500)
@@ -216,7 +216,7 @@ def battle() -> Response:
 
         winner = battle_model.battle()
 
-        return make_response(jsonify({'status': 'battle complete', 'winner': winner}), 200)
+        return make_response(jsonify({'status': 'success', 'winner': winner}), 200)
     except Exception as e:
         app.logger.error(f"Battle error: {e}")
         return make_response(jsonify({'error': str(e)}), 500)
@@ -235,7 +235,7 @@ def clear_combatants() -> Response:
         app.logger.info('Clearing all combatants...')
         battle_model.clear_combatants()
         app.logger.info('Combatants cleared.')
-        return make_response(jsonify({'status': 'combatants cleared'}), 200)
+        return make_response(jsonify({'status': 'success'}), 200)
     except Exception as e:
         app.logger.error("Failed to clear combatants: %s", str(e))
         return make_response(jsonify({'error': str(e)}), 500)
@@ -284,7 +284,7 @@ def prep_combatant() -> Response:
         except Exception as e:
             app.logger.error("Failed to prepare combatant: %s", str(e))
             return make_response(jsonify({'error': str(e)}), 500)
-        return make_response(jsonify({'status': 'combatant prepared', 'combatants': combatants}), 200)
+        return make_response(jsonify({'status': 'success', 'combatants': combatants}), 200)
 
     except Exception as e:
         app.logger.error("Failed to prepare combatants: %s", str(e))
