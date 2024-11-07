@@ -110,9 +110,24 @@ def add_meal() -> Response:
         kitchen_model.create_meal(meal, cuisine, price, difficulty)
 
         app.logger.info("Combatant added: %s", meal)
-        return make_response(jsonify({'status': 'combatant added', 'combatant': meal}), 201)
+        return make_response(jsonify({'status': 'success', 'combatant': meal}), 201)
     except Exception as e:
         app.logger.error("Failed to add combatant: %s", str(e))
+        return make_response(jsonify({'error': str(e)}), 500)
+
+@app.route('/api/clear-meals', methods=['DELETE'])
+def clear_catalog() -> Response:
+    """
+    Route to clear all meals (recreates the table).
+    Returns:
+        JSON response indicating success of the operation or error message.
+    """
+    try:
+        app.logger.info("Clearing the meals")
+        kitchen_model.clear_meals()
+        return make_response(jsonify({'status': 'success'}), 200)
+    except Exception as e:
+        app.logger.error(f"Error clearing catalog: {e}")
         return make_response(jsonify({'error': str(e)}), 500)
 
 @app.route('/api/delete-meal/<int:meal_id>', methods=['DELETE'])
