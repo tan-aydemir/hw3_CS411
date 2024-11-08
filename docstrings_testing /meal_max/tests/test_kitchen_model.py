@@ -155,6 +155,58 @@ def test_delete_meal_already_deleted(mock_cursor):
 # Get Meal test cases
 ##################################################
 
+def test_get_leaderboard(mock_cursor):
+    """Test retrieving the meal leaderboard sorted by wins or win percentage."""
+
+    # Simulate leaderboard data for meals in the database
+    mock_cursor.fetchall.return_value = [
+        (1, "Meal A", "Italian", 15.0, "Easy", 10, 8, 0.8),
+        (2, "Meal B", "Mexican", 12.0, "Medium", 5, 4, 0.8),
+        (3, "Meal C", "Indian", 20.0, "Hard", 7, 5, 0.714)
+    ]
+
+    # Call get_leaderboard function with sort_by="wins"
+    leaderboard_by_wins = get_leaderboard(sort_by="wins")
+
+    # Expected result when sorting by wins
+    expected_result_by_wins = [
+        {'id': 1, 'meal': "Meal A", 'cuisine': "Italian", 'price': 15.0, 'difficulty': "Easy", 'battles': 10, 'wins': 8, 'win_pct': 80.0},
+        {'id': 2, 'meal': "Meal B", 'cuisine': "Mexican", 'price': 12.0, 'difficulty': "Medium", 'battles': 5, 'wins': 4, 'win_pct': 80.0},
+        {'id': 3, 'meal': "Meal C", 'cuisine': "Indian", 'price': 20.0, 'difficulty': "Hard", 'battles': 7, 'wins': 5, 'win_pct': 71.4}
+    ]
+
+    assert leaderboard_by_wins == expected_result_by_wins, f"Expected {expected_result_by_wins}, but got {leaderboard_by_wins}"
+
+    # Ensure the SQL query for sorting by wins is executed correctly
+    expected_query_by_wins = normalize_whitespace("""
+        SELECT id, meal, cuisine, price, difficulty, battles, wins, (wins * 1.0 / battles) AS win_pct
+        FROM meals WHERE deleted = false AND battles > 0
+        ORDER BY wins DESC
+    """)
+    actual_query_by_wins = normalize_whitespace(mock_cursor.execute.call_args[0][0])
+    assert actual_query_by_wins == expected_query_by_wins, "The SQL query for wins did not match the expected structure."
+
+    # Call get_leaderboard function with sort_by="win_pct"
+    leaderboard_by_win_pct = get_leaderboard(sort_by="win_pct")
+
+    # Expected result when sorting by win_pct (same as above because win_pct values are the same)
+    expected_result_by_win_pct = [
+        {'id': 1, 'meal': "Meal A", 'cuisine': "Italian", 'price': 15.0, 'difficulty': "Easy", 'battles': 10, 'wins': 8, 'win_pct': 80.0},
+        {'id': 2, 'meal': "Meal B", 'cuisine': "Mexican", 'price': 12.0, 'difficulty': "Medium", 'battles': 5, 'wins': 4, 'win_pct': 80.0},
+        {'id': 3, 'meal': "Meal C", 'cuisine': "Indian", 'price': 20.0, 'difficulty': "Hard", 'battles': 7, 'wins': 5, 'win_pct': 71.4}
+    ]
+
+    assert leaderboard_by_win_pct == expected_result_by_win_pct, f"Expected {expected_result_by_win_pct}, but got {leaderboard_by_win_pct}"
+
+    # Ensure the SQL query for sorting by win_pct is executed correctly
+    expected_query_by_win_pct = normalize_whitespace("""
+        SELECT id, meal, cuisine, price, difficulty, battles, wins, (wins * 1.0 / battles) AS win_pct
+        FROM meals WHERE deleted = false AND battles > 0
+        ORDER BY win_pct DESC
+    """)
+    actual_query_by_win_pct = normalize_whitespace(mock_cursor.execute.call_args[0][0])
+    assert actual_query_by_win_pct == expected_query_by_win_pct, "The SQL query for win_pct did not match the expected structure."
+
 
 def test_get_meal_by_id(mock_cursor):
     """Test retrieving a meal by its ID."""
