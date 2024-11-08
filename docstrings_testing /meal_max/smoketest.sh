@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the base URL for the Flask API
-BASE_URL="http://localhost:5000/api"
+BASE_URL="http://localhost:5001/api"
 
 # Flag to control whether to echo JSON output
 ECHO_JSON=false
@@ -26,6 +26,7 @@ done
 check_health() {
   echo "Checking health status..."
   curl -s -X GET "$BASE_URL/health" | grep -q '"status": "healthy"'
+  echo "Response: $RESPONSE"  # Add this line for debugging
   if [ $? -eq 0 ]; then
     echo "Service is healthy."
   else
@@ -113,19 +114,41 @@ get_meal_by_id() {
   fi
 }
 
-get_meal_by_id() {
-  meal_id=$1
+get_meal_by_name() {
+  meal_name=$1
 
-  echo "Getting meal by ID ($meal_id)..."
-  response=$(curl -s -X GET "$BASE_URL/get-meal-by-id/$meal_id")
+  echo "Getting meal by name ($meal_name)..."
+  response=$(curl -s -X GET "$BASE_URL/get-meal-by-name/$meal_name")
   if echo "$response" | grep -q '"status": "success"'; then
-    echo "Meal retrieved successfully by ID ($meal_id)."
+    echo "Meal retrieved successfully by name ($meal_name)."
     if [ "$ECHO_JSON" = true ]; then
-      echo "Meal JSON (ID $meal_id):"
+      echo "Meal JSON (name $meal_name):"
       echo "$response" | jq .
     fi
   else
-    echo "Failed to get meal by ID ($meal_id)."
+    echo "Failed to get meal by name ($meal_name)."
+    exit 1
+  fi
+}
+
+############################################################
+#
+# Leaderboard
+#
+############################################################
+
+get_leaderboard() {
+  echo "Retrieving leaderboard..."
+  response=$(curl -s -X GET "$BASE_URL/leaderboard")
+
+  if echo "$response" | grep -q '"status": "success"'; then
+    echo "Leaderboard retrieved successfully."
+    if [ "$ECHO_JSON" = true ]; then
+      echo "Meals JSON:"
+      echo "$response" | jq .
+    fi
+  else
+    echo "Failed to retrieve leaderboard."
     exit 1
   fi
 }
@@ -134,3 +157,24 @@ get_meal_by_id() {
 # Health checks
 check_health
 check_db
+
+# Create meals
+create_meal "Pizza" "Italian" 5.00 "MED"
+create_meal "Pasta" "Italian" 10.00 "LOW"
+create_meal "Tacos" "Mexican" 7.00 "MED"
+create_meal "Sushi" "Japanese" 20.00 "HIGH"
+create_meal "Burger" "American" 9.00 "LOW"
+
+# Delete meals
+delete_meal_by_id 1
+delete_meal_by_id 2
+
+# Get meals
+
+get_meal_by_id 3
+get_meal_by_name "Sushi"
+
+get_leaderboard
+
+# Clear meals
+clear_meals
