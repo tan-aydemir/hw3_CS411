@@ -61,6 +61,17 @@ def test_create_meal(mock_cursor):
 
     assert actual_query == expected_query
 
+def test_create_meal_duplicate(mock_cursor):
+    """Test creating a meal with a duplicate cuisine, price, and difficulty (should raise an error)."""
+
+    # Simulate that the database will raise an IntegrityError due to a duplicate entry
+    mock_cursor.execute.side_effect = sqlite3.IntegrityError("UNIQUE constraint failed: meals.cuisine, meals.price, meals.difficulty")
+
+    # Expect the function to raise a ValueError with a specific message when handling the IntegrityError
+    with pytest.raises(ValueError, match="Meal with cuisine 'Italian', price 5.00, and difficulty MED already exists."):
+        create_meal(meal="Pizza", cuisine="Italian", price=5.00, difficulty="MED")
+
+
 # Test error when creating a meal with a negative price
 def test_create_meal_invalid_price():
     """Test creating a meal with an invalid price."""
