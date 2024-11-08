@@ -4,7 +4,7 @@ import sqlite3
 import pytest
 from unittest.mock import patch
 
-from meal_max.models.kitchen_model import Meal, create_meal, delete_meal, get_leaderboard, get_meal_by_id, get_meal_by_name, update_meal_stats
+from meal_max.models.kitchen_model import Meal, create_meal, clear_meals, delete_meal, get_leaderboard, get_meal_by_id, get_meal_by_name, update_meal_stats
 from meal_max.utils.sql_utils import get_db_connection
 
 ######################################################
@@ -87,6 +87,26 @@ def test_create_meal_invalid_difficulty():
         create_meal(meal="Pizza", cuisine="Italian", price=5.00, difficulty="EASY")
 
 ##################################################
+# Clear Meals test case
+##################################################
+
+def test_clear_meals(mock_cursor, mocker):
+    """Test clearing the entire meal table (removes all meals)."""
+
+    # Mock the file reading
+    mocker.patch.dict('os.environ', {'SQL_CREATE_TABLE_PATH': 'sql/create_meal_table.sql'})
+    mock_open = mocker.patch('builtins.open', mocker.mock_open(read_data="The body of the create statement"))
+
+    # Call the clear_database function
+    clear_meals()
+
+    # Ensure the file was opened using the environment variable's path
+    mock_open.assert_called_once_with('sql/create_meal_table.sql', 'r')
+
+    # Verify that the correct SQL script was executed
+    mock_cursor.executescript.assert_called_once()
+
+##################################################
 # Delete Meal test cases
 ##################################################
 
@@ -110,17 +130,17 @@ def test_delete_meal(mock_cursor):
     assert actual_select_query.strip() == expected_select_query.strip()
     assert actual_update_query.strip() == expected_update_query.strip()
 
-def test_delete_song_bad_id(mock_cursor):
+def test_delete_meal_bad_id(mock_cursor):
     """Test error when trying to delete a non-existent meal."""
 
-    # Simulate that no song exists with the given ID
+    # Simulate that no meal exists with the given ID
     mock_cursor.fetchone.return_value = None
 
-    # Expect a ValueError when attempting to delete a non-existent song
+    # Expect a ValueError when attempting to delete a non-existent meal
     with pytest.raises(ValueError, match="Meal with ID 999 not found"):
         delete_meal(999)
 
-def test_delete_song_already_deleted(mock_cursor):
+def test_delete_meal_already_deleted(mock_cursor):
     """Test error when trying to delete a meal that's already marked as deleted."""
 
     # Simulate that the meal exists but is already marked as deleted
@@ -171,9 +191,13 @@ def test_get_meal_by_id_bad_id(mock_cursor):
     # Simulate that no meal exists for the given ID
     mock_cursor.fetchone.return_value = None
 
-    # Expect a ValueError when the song is not found
+    # Expect a ValueError when the meal is not found
     with pytest.raises(ValueError, match="Meal with ID 999 not found"):
         get_meal_by_id(999)
+
+##################################################
+# Update Meal Stats test cases
+##################################################
 
 def test_update_meal_stats_win(mock_cursor):
     """Test updating the battle stats when result is 'win'"""
@@ -233,3 +257,17 @@ def test_update_meal_stats_loss(mock_cursor):
     # Assert that the SQL query was executed with the correct arguments (meal ID, reasult)
     expected_arguments = (meal_id,)
     assert actual_arguments == expected_arguments, f"The SQL query arguments did not match. Expected {expected_arguments}, got {actual_arguments}."
+
+### Test for Updating a Deleted Meal:
+def test_update_meal_stats_deleted_meal(mock_cursor):
+    """Test error when trying to update stats for a deleted meal."""
+
+    # Simulate that the meal exists but is marked as deleted (id = 1)
+    mock_cursor.fetchone.return_value = [True]
+
+    # Expect a ValueError when attempting to update a deleted meal
+    with pytest.raises(ValueError, match="Meal with ID 1 has been deleted"):
+        update_meal_stats(1, "win")
+
+    # Ensure that no SQL query for updating meal count was executed
+    mock_cursor.execute.assert_called_once_with("SELECT deleted FROM meals WHERE id = ?", (1,))
