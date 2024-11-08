@@ -68,7 +68,7 @@ def test_create_meal_duplicate(mock_cursor):
     mock_cursor.execute.side_effect = sqlite3.IntegrityError("UNIQUE constraint failed: meals.cuisine, meals.price, meals.difficulty")
 
     # Expect the function to raise a ValueError with a specific message when handling the IntegrityError
-    with pytest.raises(ValueError, match="Meal with cuisine 'Italian', price 5.00, and difficulty MED already exists."):
+    with pytest.raises(ValueError, match="Meal with name 'Pizza' already exists"):
         create_meal(meal="Pizza", cuisine="Italian", price=5.00, difficulty="MED")
 
 
@@ -109,6 +109,27 @@ def test_delete_meal(mock_cursor):
 
     assert actual_select_query.strip() == expected_select_query.strip()
     assert actual_update_query.strip() == expected_update_query.strip()
+
+def test_delete_song_bad_id(mock_cursor):
+    """Test error when trying to delete a non-existent meal."""
+
+    # Simulate that no song exists with the given ID
+    mock_cursor.fetchone.return_value = None
+
+    # Expect a ValueError when attempting to delete a non-existent song
+    with pytest.raises(ValueError, match="Meal with ID 999 not found"):
+        delete_meal(999)
+
+def test_delete_song_already_deleted(mock_cursor):
+    """Test error when trying to delete a meal that's already marked as deleted."""
+
+    # Simulate that the meal exists but is already marked as deleted
+    mock_cursor.fetchone.return_value = ([True])
+
+    # Expect a ValueError when attempting to delete a meal that's already been deleted
+    with pytest.raises(ValueError, match="Meal with ID 999 has been deleted"):
+        delete_meal(999)
+
 
 ##################################################
 # Update Meal test cases
