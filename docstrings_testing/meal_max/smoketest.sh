@@ -75,7 +75,7 @@ battle() {
 }
 
 
-# Smoke Test 2: Clear Combatants Route
+# Smoke Test 2: Clear Combatants
 clear_combatants() {
   echo "Clearing all combatants..."
   
@@ -91,7 +91,7 @@ clear_combatants() {
   fi
 }
 
-# Smoke Test 3: Get Combatants Route
+# Smoke Test 3: Get Combatants
 get_combatants() {
   echo "Retrieving combatants..."
   response=$(curl -s -X GET "$BASE_URL/api/get-combatants")
@@ -107,7 +107,7 @@ get_combatants() {
   fi
 }
 
-# Smoke Test 4: Prep Combatant Route
+# Smoke Test 4: Prep Combatant
 prep_combatant() {
   meal_name=$1
   cuisine=$2
@@ -145,9 +145,9 @@ EOF
 
 # Run the smoke tests
 
-
-# clear_combatants
-# get_combatants
+battle
+clear_combatants
+get_combatants
 prep_combatant "Pizza" "Italian" 12.99 "Easy"
 
 
