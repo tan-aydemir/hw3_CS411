@@ -26,7 +26,7 @@ done
 check_health() {
   echo "Checking health status..."
   curl -s -X GET "$BASE_URL/health" | grep -q '"status": "healthy"'
-  echo "Response: $RESPONSE"  # Add this line for debugging
+  echo "Response: $RESPONSE"  # Added this for debugging
   if [ $? -eq 0 ]; then
     echo "Service is healthy."
   else
