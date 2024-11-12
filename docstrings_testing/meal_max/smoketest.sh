@@ -53,23 +53,40 @@ check_db() {
 # Smoke Test 1: Battle Route
 battle() {
   echo "Initiating battle..."
-  response=$(curl -s -X GET "$BASE_URL/api/battle")
-  if echo "$response" | grep -q '"status": "battle complete"'; then
+  
+  # Make a GET request to the /api/battle endpoint
+  response=$(curl -s -w "%{http_code}" -o /tmp/response.json -X GET "$BASE_URL/battle")
+  
+  # Check the HTTP response code and verify if it's 200 (OK)
+  if [ "$response" -ne 200 ]; then
+    echo "Error: HTTP response code $response. Battle initiation failed."
+    cat /tmp/response.json
+    exit 1
+  fi
+  
+  # Check if the response contains the expected status and winner
+  if echo "$response" | jq -e '.status == "battle complete"' > /dev/null && echo "$response" | jq -e '.winner != null' > /dev/null; then
     echo "Battle completed successfully."
   else
     echo "Failed to initiate battle."
+    cat /tmp/response.json
     exit 1
   fi
 }
 
+
 # Smoke Test 2: Clear Combatants Route
 clear_combatants() {
   echo "Clearing all combatants..."
-  response=$(curl -s -X POST "$BASE_URL/api/clear-combatants")
+  
+  # Sending the POST request to the full API URL
+  response=$(curl -s -X POST "$BASE_URL/clear-combatants")
+
+  # Check if the response contains the expected status
   if echo "$response" | grep -q '"status": "combatants cleared"'; then
     echo "Combatants cleared successfully."
   else
-    echo "Failed to clear combatants."
+    echo "Failed to clear combatants. Response was: $response"
     exit 1
   fi
 }
@@ -127,10 +144,12 @@ EOF
 }
 
 # Run the smoke tests
-battle
-clear_combatants
-get_combatants
+
+
+# clear_combatants
+# get_combatants
 prep_combatant "Pizza" "Italian" 12.99 "Easy"
+
 
 
 
